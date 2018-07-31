@@ -87,7 +87,7 @@ public class CsvHelper {
         return fields;
     }
 
-    private static enum State {
+    private enum State {
         FIELD_END, FIELD, QUOTED_FIELD, QUOTE_IN_FIELD
     }
 }

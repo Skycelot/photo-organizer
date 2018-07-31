@@ -7,7 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.skycelot.photoorganizer.filesystem.File;
+import ru.skycelot.photoorganizer.filesystem.FileMetadata;
 import ru.skycelot.photoorganizer.service.CsvHelper;
 import ru.skycelot.photoorganizer.service.FileCsvConverter;
 
@@ -36,8 +36,8 @@ public class FIleConverterTest {
     @Test
     public void testFileToCsvConverter() {
 
-        File file = new File();
-        file.path = Paths.get("test this \"file\"");
+        FileMetadata file = new FileMetadata();
+        file.path = Paths.get("test this \"fileMetadata\"");
         file.size = 12L;
         file.createdOn = Instant.ofEpochMilli(15L);
         file.modifiedOn = Instant.ofEpochMilli(20L);
@@ -47,17 +47,17 @@ public class FIleConverterTest {
         ArgumentCaptor<List<String>> fieldsCaptor = ArgumentCaptor.forClass(List.class);
         verify(csvHelper).encodeFields(fieldsCaptor.capture());
         List<String> actualFields = fieldsCaptor.getValue();
-        assertEquals(Arrays.asList("test this \"file\"", "12", "15", "20"), actualFields);
+        assertEquals(Arrays.asList("test this \"fileMetadata\"", "12", "15", "20"), actualFields);
     }
 
     @Test
     public void testCsvToFileConverter() {
 
-        when(csvHelper.decodeFields(ArgumentMatchers.anyString())).thenReturn(Arrays.asList("test this \"file\"", "12", "15", "20"));
+        when(csvHelper.decodeFields(ArgumentMatchers.anyString())).thenReturn(Arrays.asList("test this \"fileMetadata\"", "12", "15", "20"));
 
-        File file = marshaller.fromCsv("");
+        FileMetadata file = marshaller.fromCsv("");
 
-        assertEquals(Paths.get("test this \"file\""), file.path);
+        assertEquals(Paths.get("test this \"fileMetadata\""), file.path);
         assertEquals(12L, file.size);
         assertEquals(Instant.ofEpochMilli(15L), file.createdOn);
         assertEquals(Instant.ofEpochMilli(20L), file.modifiedOn);
