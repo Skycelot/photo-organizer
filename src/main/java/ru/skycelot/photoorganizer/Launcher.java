@@ -44,7 +44,7 @@ public class Launcher {
             fileDescription.size = attrs.size();
             fileDescription.createdOn = attrs.creationTime().toInstant();
             fileDescription.modifiedOn = attrs.lastModifiedTime().toInstant();
-            FileContentAnalyzer.ContentAnalysis analysis = analyzer.analyze(file);
+            FileContentAnalyzer.ContentAnalysis analysis = analyzer.analyze(file, attrs.size());
             fileDescription.hash = analysis.hash;
             fileDescription.magicBytes = analysis.magicBytes;
             files.add(fileDescription);

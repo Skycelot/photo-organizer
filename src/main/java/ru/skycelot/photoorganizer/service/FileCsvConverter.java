@@ -2,6 +2,7 @@ package ru.skycelot.photoorganizer.service;
 
 import ru.skycelot.photoorganizer.filesystem.FileMetadata;
 
+import javax.xml.bind.DatatypeConverter;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ public class FileCsvConverter {
         fields.add(Long.toString(fileMetadata.size));
         fields.add(fileMetadata.createdOn != null ? Long.toString(fileMetadata.createdOn.toEpochMilli()) : "");
         fields.add(fileMetadata.modifiedOn != null ? Long.toString(fileMetadata.modifiedOn.toEpochMilli()) : "");
+        fields.add(fileMetadata.magicBytes != null ? DatatypeConverter.printHexBinary(fileMetadata.magicBytes): "");
+        fields.add(fileMetadata.hash != null ? DatatypeConverter.printHexBinary(fileMetadata.hash): "");
         return csvHelper.encodeFields(fields);
     }
 
@@ -35,9 +38,13 @@ public class FileCsvConverter {
                 } else if (index == 1) {
                     fileMetadata.size = Long.valueOf(field);
                 } else if (index == 2) {
-                    fileMetadata.createdOn = Instant.ofEpochMilli(Long.valueOf(field));
+                    fileMetadata.createdOn = field.isEmpty() ? null : Instant.ofEpochMilli(Long.valueOf(field));
                 } else if (index == 3) {
-                    fileMetadata.modifiedOn = Instant.ofEpochMilli(Long.valueOf(field));
+                    fileMetadata.modifiedOn = field.isEmpty() ? null : Instant.ofEpochMilli(Long.valueOf(field));
+                } else if (index == 4) {
+                    fileMetadata.magicBytes = field.isEmpty() ? null : DatatypeConverter.parseHexBinary(field);
+                } else if (index == 5) {
+                    fileMetadata.hash = field.isEmpty() ? null : DatatypeConverter.parseHexBinary(field);
                 }
                 index++;
             }

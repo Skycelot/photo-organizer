@@ -12,22 +12,25 @@ import java.util.Arrays;
 
 public class FileContentAnalyzer {
 
-    public ContentAnalysis analyze(Path path) {
+    public ContentAnalysis analyze(Path path, long size) {
         ContentAnalysis result = new ContentAnalysis();
 
         ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024);
         try {
             ByteChannel file = Files.newByteChannel(path, StandardOpenOption.READ);
             MessageDigest hash = MessageDigest.getInstance("SHA-256");
+            int readBytes;
             boolean firstBuffer = true;
-            while(file.read(buffer) > -1) {
-                buffer.rewind();
-                if (firstBuffer) {
-                    firstBuffer = false;
-                    result.magicBytes = Arrays.copyOfRange(buffer.array(), 0, 4);
-                }
-                hash.update(buffer.array());
+            while ((readBytes = file.read(buffer)) > 0) {
                 buffer.flip();
+                byte[] chunk = new byte[readBytes];
+                buffer.get(chunk);
+                if (firstBuffer && readBytes >= 4) {
+                    firstBuffer = false;
+                    result.magicBytes = Arrays.copyOfRange(chunk, 0, 4);
+                }
+                hash.update(chunk);
+                buffer.clear();
             }
             result.hash = hash.digest();
             return result;
