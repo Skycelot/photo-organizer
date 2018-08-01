@@ -8,7 +8,8 @@ import ru.skycelot.photoorganizer.service.FileCsvConverter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Launcher {
@@ -25,7 +26,7 @@ public class Launcher {
         System.out.println("Earliest file created on " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.createdOn).sorted().limit(1).findAny().orElse(null));
         System.out.println("Earliest file modified on " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.modifiedOn).sorted().limit(1).findAny().orElse(null));
         FileCsvConverter marshaller = new FileCsvConverter(new CsvHelper());
-        Path cvs = Paths.get("db.cvs");
+        Path cvs = Paths.get("db.csv");
         Files.write(cvs, fileVisitor.files.stream().map(fileMetadata -> marshaller.toCsv(fileMetadata)).collect(Collectors.toList()), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
@@ -45,8 +46,8 @@ public class Launcher {
             fileDescription.createdOn = attrs.creationTime().toInstant();
             fileDescription.modifiedOn = attrs.lastModifiedTime().toInstant();
             FileContentAnalyzer.ContentAnalysis analysis = analyzer.analyze(file, attrs.size());
-            fileDescription.hash = analysis.hash;
             fileDescription.magicBytes = analysis.magicBytes;
+            fileDescription.hash = analysis.hash;
             files.add(fileDescription);
             return FileVisitResult.CONTINUE;
         }

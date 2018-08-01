@@ -17,7 +17,7 @@ public class FileCsvConverter {
     }
 
     public String toCsv(FileMetadata fileMetadata) {
-        List<String> fields = new ArrayList<>(3);
+        List<String> fields = new ArrayList<>(6);
         fields.add(fileMetadata.path != null ? fileMetadata.path.toString() : "");
         fields.add(Long.toString(fileMetadata.size));
         fields.add(fileMetadata.createdOn != null ? Long.toString(fileMetadata.createdOn.toEpochMilli()) : "");
@@ -29,7 +29,7 @@ public class FileCsvConverter {
 
     public FileMetadata fromCsv(String csvLine) {
         List<String> fields = csvHelper.decodeFields(csvLine);
-        if (fields.size() == 4) {
+        if (fields.size() == 6) {
             FileMetadata fileMetadata = new FileMetadata();
             int index = 0;
             for (String field: fields) {
