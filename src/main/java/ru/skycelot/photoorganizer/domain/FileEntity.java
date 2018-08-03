@@ -1,12 +1,13 @@
 package ru.skycelot.photoorganizer.domain;
 
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class FileEntity {
-    public String uuid;
-    public String path;
-    public String name;
+    public UUID uuid;
+    public Path path;
     public String extension;
     public long size;
     public Instant createdOn;
@@ -18,7 +19,6 @@ public class FileEntity {
     public String toString() {
         return "FileEntity{" +
                 "path='" + path + '\'' +
-                ", name='" + name + '\'' +
                 ", extension='" + extension + '\'' +
                 ", size=" + size +
                 ", createdOn=" + createdOn +

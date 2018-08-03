@@ -8,6 +8,4 @@ public class FileMetadata {
     public long size;
     public Instant createdOn;
     public Instant modifiedOn;
-    public byte[] hash;
-    public byte[] magicBytes;
 }
