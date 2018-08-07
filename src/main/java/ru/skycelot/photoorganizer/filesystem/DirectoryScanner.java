@@ -1,6 +1,4 @@
-package ru.skycelot.photoorganizer.service;
-
-import ru.skycelot.photoorganizer.filesystem.FileMetadata;
+package ru.skycelot.photoorganizer.filesystem;
 
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
