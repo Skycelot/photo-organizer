@@ -26,7 +26,7 @@ public class DuplicatesJsonConverter {
             duplicatesObject.put("uuids", duplicatesUuids);
             duplicatesArray.add(duplicatesObject);
         });
-        return jsonHelper.stringify(duplicatesArray);
+        return jsonHelper.stringify(root);
     }
 
     public List<Duplicates> unmarshall(String json) {
