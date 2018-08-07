@@ -9,10 +9,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FileJsonConverter {
+public class FileMetadataJsonConverter {
     private final JsonHelper jsonHelper;
 
-    public FileJsonConverter(JsonHelper jsonHelper) {
+    public FileMetadataJsonConverter(JsonHelper jsonHelper) {
         this.jsonHelper = jsonHelper;
     }
 

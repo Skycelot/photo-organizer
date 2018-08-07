@@ -8,7 +8,7 @@ import java.util.UUID;
 public class FileMetadataToFileEntityConverter {
 
     public FileEntity convert(FileMetadata fileMetadata, String mainDirPath) {
-        FileEntity result = new FileEntity();
+        FileEntity result = new FileEntity(fileMetadata.path, fileMetadata.size, fileMetadata.createdOn, fileMetadata.modifiedOn);
         result.uuid = UUID.randomUUID();
         result.path = fileMetadata.path;
         return result;

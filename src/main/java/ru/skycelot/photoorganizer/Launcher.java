@@ -1,10 +1,10 @@
 package ru.skycelot.photoorganizer;
 
+import ru.skycelot.photoorganizer.domain.Duplicates;
 import ru.skycelot.photoorganizer.domain.FileEntity;
-import ru.skycelot.photoorganizer.service.DirectoryScanner;
-import ru.skycelot.photoorganizer.service.FileJsonConverter;
-import ru.skycelot.photoorganizer.service.JsonHelper;
+import ru.skycelot.photoorganizer.service.*;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,25 +29,53 @@ public class Launcher {
         DirectoryScanner fileVisitor = new DirectoryScanner(rootDirectory);
         Files.walkFileTree(rootDirectory, fileVisitor);
 
-        Map<UUID, FileEntity> fileMap = fileVisitor.files.stream().
+        Map<UUID, FileEntity> filesMap = fileVisitor.files.stream().
                 map(fileMeta -> new FileEntity(fileMeta.path, fileMeta.size, fileMeta.createdOn, fileMeta.modifiedOn)).
                 collect(Collectors.toMap(file -> file.uuid, file -> file));
 
-        Map<Long, List<FileEntity>> filesGroupedBySize = fileMap.values().stream().collect(Collectors.groupingBy(file -> file.size));
-        filesGroupedBySize.entrySet().stream().filter(entry -> entry.getKey() > 0 && entry.getValue().size() > 1).forEach(entry -> {
-            List<FileEntity> files = entry.getValue();
+        FileContentHelper contentHelper = new FileContentHelper();
+        filesMap.values().stream().filter(file -> file.size > 0).forEach(file -> {
+            file.magicBytes = contentHelper.readMagicBytes(rootDirectory.resolve(file.path));
         });
 
+        List<List<FileEntity>> sameSizeFiles = filesMap.values().stream().
+                collect(Collectors.groupingBy(file -> file.size)).entrySet().stream().
+                filter(entry -> entry.getKey() > 0 && entry.getValue().size() > 1).
+                map(entry -> entry.getValue()).
+                collect(Collectors.toList());
+
+        sameSizeFiles.stream().flatMap(files -> files.stream()).forEach(file -> {
+            file.hash = contentHelper.calculateHash(rootDirectory.resolve(file.path));
+        });
+
+        Map<String, List<FileEntity>> sameHashFiles = filesMap.values().stream().
+                filter(file -> file.hash != null).
+                collect(Collectors.groupingBy(file -> DatatypeConverter.printHexBinary(file.hash)));
+        List<Duplicates> duplicates = sameHashFiles.values().stream().filter(list -> list.size() > 1).
+                map(list -> new Duplicates(list.stream().map(file -> file.uuid).collect(Collectors.toList()))).
+                collect(Collectors.toList());
+                ;
 
         System.out.println("Number of files: " + fileVisitor.files.size());
         System.out.println("Files size: " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.size).reduce((i, k) -> i + k).orElse(0L));
         System.out.println("Earliest file created on " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.createdOn).sorted().limit(1).findAny().orElse(null));
         System.out.println("Earliest file modified on " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.modifiedOn).sorted().limit(1).findAny().orElse(null));
 
-        Path db = Paths.get("db.json");
+        JsonHelper jsonHelper = new JsonHelper();
+
+        Path db = Paths.get("files.json");
         ByteChannel channel = Files.newByteChannel(db, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        byte[] json = new FileJsonConverter(new JsonHelper()).marshall(fileVisitor.files).getBytes(StandardCharsets.UTF_8);
+        byte[] json = new FileEntityJsonConverter(jsonHelper).marshall(new ArrayList<>(filesMap.values())).getBytes(StandardCharsets.UTF_8);
         ByteBuffer buffer = ByteBuffer.allocate(json.length);
+        buffer.put(json);
+        buffer.flip();
+        channel.write(buffer);
+        channel.close();
+
+        db = Paths.get("duplicates.json");
+        channel = Files.newByteChannel(db, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        json = new DuplicatesJsonConverter(jsonHelper).marshall(duplicates).getBytes(StandardCharsets.UTF_8);
+        buffer = ByteBuffer.allocate(json.length);
         buffer.put(json);
         buffer.flip();
         channel.write(buffer);
