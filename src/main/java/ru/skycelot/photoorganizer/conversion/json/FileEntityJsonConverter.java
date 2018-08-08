@@ -1,10 +1,16 @@
 package ru.skycelot.photoorganizer.conversion.json;
 
-import ru.skycelot.photoorganizer.domain.FileEntity;
 import ru.skycelot.photoorganizer.conversion.json.elements.*;
+import ru.skycelot.photoorganizer.domain.Extension;
+import ru.skycelot.photoorganizer.domain.FileEntity;
 
 import javax.xml.bind.DatatypeConverter;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 public class FileEntityJsonConverter {
 
@@ -28,15 +34,68 @@ public class FileEntityJsonConverter {
         JsonArray pathArray = new JsonArray();
         file.path.iterator().forEachRemaining(path -> pathArray.add(new JsonString(path.toString())));
         object.put("path", pathArray);
-        object.put("extension", file.extension != null ? new JsonString(file.extension) : JsonNull.getInstance());
+        object.put("extension", file.extension != null ? new JsonString(file.extension.name()) : JsonNull.getInstance());
         object.put("size", new JsonNumber(file.size, false));
         object.put("createdOn", new JsonNumber(file.createdOn.toEpochMilli(), false));
         object.put("modifiedOn", new JsonNumber(file.modifiedOn.toEpochMilli(), false));
-        object.put("magicBytes", file.magicBytes != null ? new JsonString(DatatypeConverter.printHexBinary(file.magicBytes)) : JsonNull.getInstance());
+        object.put("magicNumber", file.magicNumber != null ? new JsonString(DatatypeConverter.printHexBinary(file.magicNumber)) : JsonNull.getInstance());
         return object;
     }
 
     public List<FileEntity> unmarshall(String json) {
-        return null;
+        List<FileEntity> result = new LinkedList<>();
+        JsonElement root = jsonHelper.parse(json);
+        if (root instanceof JsonObject) {
+            JsonElement array = ((JsonObject) root).get("files");
+            if (array instanceof JsonArray) {
+                for (JsonElement element : (JsonArray) array) {
+                    if (element instanceof JsonObject) {
+                        result.add(unmarshallFile((JsonObject) element));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private FileEntity unmarshallFile(JsonObject file) {
+        FileEntity result = new FileEntity();
+
+        JsonElement uuid = file.get("uuid");
+        if (uuid instanceof JsonString) {
+            result.uuid = UUID.fromString(((JsonString) uuid).getValue());
+        }
+        JsonElement path = file.get("path");
+        if (path instanceof JsonArray) {
+            String[] pathElements = new String[((JsonArray) path).size()];
+            int i = 0;
+            for (JsonElement element : (JsonArray) path) {
+                pathElements[i] = ((JsonString) element).getValue();
+                i++;
+            }
+            result.path = pathElements.length > 1 ? Paths.get(pathElements[0], Arrays.copyOfRange(pathElements, 1, pathElements.length)) : Paths.get(pathElements[0]);
+        }
+        JsonElement extension = file.get("extension");
+        if (extension instanceof JsonString) {
+            result.extension = Extension.valueOf(((JsonString) extension).getValue());
+        }
+        JsonElement size = file.get("size");
+        if (size instanceof JsonNumber) {
+            result.size = ((JsonNumber) size).getValue().longValue();
+        }
+        JsonElement createdOn = file.get("createdOn");
+        if (createdOn instanceof JsonNumber) {
+            result.createdOn = Instant.ofEpochMilli(((JsonNumber) createdOn).getValue().longValue());
+        }
+        JsonElement modifiedOn = file.get("modifiedOn");
+        if (modifiedOn instanceof JsonNumber) {
+            result.modifiedOn = Instant.ofEpochMilli(((JsonNumber) modifiedOn).getValue().longValue());
+        }
+        JsonElement magicNumber = file.get("magicNumber");
+        if (magicNumber instanceof JsonString) {
+            result.magicNumber = DatatypeConverter.parseHexBinary(((JsonString) magicNumber).getValue());
+        }
+
+        return result;
     }
 }

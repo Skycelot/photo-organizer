@@ -113,7 +113,7 @@ public class JsonHelper {
                                 objectStack.add(innerObject);
                                 stateStack.add(State.NODE);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case VALUE:
@@ -125,7 +125,7 @@ public class JsonHelper {
                                 JsonArray parentArray = (JsonArray) objectStack.getLast();
                                 parentArray.add(innerObject);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             objectStack.add(innerObject);
                             stateStack.add(State.NODE);
@@ -141,7 +141,7 @@ public class JsonHelper {
                                 objectStack.add(innerObject);
                                 stateStack.add(State.NODE);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case PROPERTY_NAME:
@@ -150,7 +150,7 @@ public class JsonHelper {
                         case LITERAL:
                         case VALUE_END:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 case '}':
@@ -175,7 +175,7 @@ public class JsonHelper {
                                         boolean fraction = number.scale() > 0;
                                         object.put(propertyStack.removeLast(), new JsonNumber(fraction ? Double.valueOf(finalValue) : Long.valueOf(finalValue), fraction));
                                     } catch (NumberFormatException e) {
-                                        throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                        throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                                     }
                                 }
                                 stateStack.removeLast();
@@ -186,7 +186,7 @@ public class JsonHelper {
                                     stateStack.add(State.FINISH);
                                 }
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case NODE:
@@ -207,7 +207,7 @@ public class JsonHelper {
                         case VALUE:
                         case STRING_ESCAPE:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 case '[':
@@ -226,7 +226,7 @@ public class JsonHelper {
                                 objectStack.add(innerArray);
                                 stateStack.add(State.NODE);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case VALUE:
@@ -237,7 +237,7 @@ public class JsonHelper {
                                 objectStack.add(innerArray);
                                 stateStack.add(State.NODE);
                             } else {
-                                throw new IllegalStateException("Attempt to set a property value in non JsonObject");
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case STRING:
@@ -251,7 +251,7 @@ public class JsonHelper {
                                 objectStack.add(innerArray);
                                 stateStack.add(State.NODE);
                             } else {
-                                throw new IllegalStateException("Attempt to add an element in non JsonArray");
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case PROPERTY_NAME:
@@ -259,7 +259,7 @@ public class JsonHelper {
                         case STRING_ESCAPE:
                         case LITERAL:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 case ']':
@@ -272,7 +272,7 @@ public class JsonHelper {
                                     stateStack.add(State.FINISH);
                                 }
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case STRING:
@@ -295,12 +295,12 @@ public class JsonHelper {
                                         boolean fraction = number.scale() > 0;
                                         array.add(new JsonNumber(fraction ? Double.valueOf(finalValue) : Long.valueOf(finalValue), fraction));
                                     } catch (NumberFormatException e) {
-                                        throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                        throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                                     }
                                 }
                                 stateStack.removeLast();
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case VALUE_END:
@@ -310,7 +310,7 @@ public class JsonHelper {
                                 stateStack.removeLast();
                                 stateStack.add(State.VALUE_END);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case START:
@@ -320,7 +320,7 @@ public class JsonHelper {
                         case STRING_ESCAPE:
                         case VALUE_NEXT:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 case '"':
@@ -334,7 +334,7 @@ public class JsonHelper {
                                 stateStack.removeLast();
                                 stateStack.add(State.STRING);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case PROPERTY_NAME:
@@ -359,7 +359,7 @@ public class JsonHelper {
                                 JsonArray array = (JsonArray) objectStack.getLast();
                                 array.add(jsonString);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case STRING_ESCAPE:
@@ -372,7 +372,7 @@ public class JsonHelper {
                         case LITERAL:
                         case VALUE_END:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 case ':':
@@ -393,7 +393,7 @@ public class JsonHelper {
                         case VALUE_END:
                         case VALUE_NEXT:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 case ',':
@@ -417,7 +417,7 @@ public class JsonHelper {
                                     boolean fraction = number.scale() > 0;
                                     jsonValue = new JsonNumber(fraction ? number.doubleValue() : number.longValue(), fraction);
                                 } catch (NumberFormatException e) {
-                                    throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                    throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                                 }
                             }
                             stateStack.removeLast();
@@ -430,7 +430,7 @@ public class JsonHelper {
                                 array.add(jsonValue);
                                 stateStack.add(State.VALUE_NEXT);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case VALUE_END:
@@ -445,7 +445,7 @@ public class JsonHelper {
                         case STRING_ESCAPE:
                         case VALUE_NEXT:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 case '\\':
@@ -468,7 +468,7 @@ public class JsonHelper {
                         case VALUE_END:
                         case VALUE_NEXT:
                         case FINISH:
-                            throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                     }
                     break;
                 default:
@@ -479,15 +479,15 @@ public class JsonHelper {
                         case VALUE_END:
                         case VALUE_NEXT:
                         case FINISH:
-                            if (!Character.isSpaceChar(character)) {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                            if (!Character.isWhitespace(character)) {
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case PROPERTY_NAME:
                             if (Character.isLetter(character)) {
                                 value.append(character);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case VALUE:
@@ -501,7 +501,7 @@ public class JsonHelper {
                             if (Character.getType(character) != Character.LINE_SEPARATOR) {
                                 value.append(character);
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             break;
                         case STRING_ESCAPE:
@@ -512,13 +512,13 @@ public class JsonHelper {
                             } else if (character == 't') {
                                 value.append("\t");
                             } else {
-                                throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                             }
                             stateStack.removeLast();
                             stateStack.add(State.STRING);
                             break;
                         case LITERAL:
-                            if (!Character.isSpaceChar(character)) {
+                            if (!Character.isWhitespace(character)) {
                                 value.append(character);
                             } else {
                                 JsonValue jsonValue;
@@ -536,7 +536,7 @@ public class JsonHelper {
                                         boolean fraction = number.scale() > 0;
                                         jsonValue = new JsonNumber(fraction ? Double.valueOf(finalValue) : Long.valueOf(finalValue), fraction);
                                     } catch (NumberFormatException e) {
-                                        throw new IllegalArgumentException(objectStack.getLast() + " -> " + character);
+                                        throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                                     }
                                 }
                                 stateStack.removeLast();
@@ -549,7 +549,7 @@ public class JsonHelper {
                                     array.add(jsonValue);
                                     stateStack.add(State.VALUE_END);
                                 } else {
-                                    throw new IllegalStateException("Attempt to set a property value or add an element in non JsonObject and JsonArray");
+                                    throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);
                                 }
                             }
                             break;

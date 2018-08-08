@@ -8,12 +8,15 @@ import java.util.UUID;
 public class FileEntity {
     public UUID uuid;
     public Path path;
-    public String extension;
+    public Extension extension;
     public long size;
     public Instant createdOn;
     public Instant modifiedOn;
     public byte[] hash;
-    public byte[] magicBytes;
+    public byte[] magicNumber;
+
+    public FileEntity() {
+    }
 
     public FileEntity(Path path, long size, Instant createdOn, Instant modifiedOn) {
         this.uuid = UUID.randomUUID();
@@ -32,7 +35,7 @@ public class FileEntity {
                 ", createdOn=" + createdOn +
                 ", modifiedOn=" + modifiedOn +
                 ", hash=" + Arrays.toString(hash) +
-                ", magicBytes=" + Arrays.toString(magicBytes) +
+                ", magicNumber=" + Arrays.toString(magicNumber) +
                 '}';
     }
 }

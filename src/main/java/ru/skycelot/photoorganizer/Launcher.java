@@ -1,12 +1,13 @@
 package ru.skycelot.photoorganizer;
 
-import ru.skycelot.photoorganizer.domain.Duplicates;
-import ru.skycelot.photoorganizer.domain.FileEntity;
-import ru.skycelot.photoorganizer.filesystem.DirectoryScanner;
 import ru.skycelot.photoorganizer.conversion.json.DuplicatesJsonConverter;
-import ru.skycelot.photoorganizer.service.FileContentHelper;
 import ru.skycelot.photoorganizer.conversion.json.FileEntityJsonConverter;
 import ru.skycelot.photoorganizer.conversion.json.JsonHelper;
+import ru.skycelot.photoorganizer.domain.Duplicates;
+import ru.skycelot.photoorganizer.domain.Extension;
+import ru.skycelot.photoorganizer.domain.FileEntity;
+import ru.skycelot.photoorganizer.filesystem.DirectoryScanner;
+import ru.skycelot.photoorganizer.service.FileContentHelper;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
@@ -40,10 +41,10 @@ public class Launcher {
                 collect(Collectors.toMap(file -> file.uuid, file -> file));
         System.out.println("done!");
 
-        System.out.print("Gathering magic bytes...");
+        System.out.print("Gathering magic numbers...");
         FileContentHelper contentHelper = new FileContentHelper(1024 * 1024);
         filesMap.values().stream().filter(file -> file.size > 0).forEach(file -> {
-            file.magicBytes = contentHelper.readMagicBytes(rootDirectory.resolve(file.path), 6);
+            file.magicNumber = contentHelper.readMagicBytes(rootDirectory.resolve(file.path), 6);
         });
         System.out.println("done!");
 
@@ -64,10 +65,19 @@ public class Launcher {
                 collect(Collectors.toList());
         System.out.println("done!");
 
-        System.out.println("Number of files: " + fileVisitor.files.size());
-        System.out.println("Files size: " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.size).reduce((i, k) -> i + k).orElse(0L));
-        System.out.println("Earliest file created on " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.createdOn).sorted().limit(1).findAny().orElse(null));
-        System.out.println("Earliest file modified on " + fileVisitor.files.stream().map(fileMetadata -> fileMetadata.modifiedOn).sorted().limit(1).findAny().orElse(null));
+        System.out.print("Detecting images...");
+        filesMap.values().stream().forEach(file -> file.extension = Extension.findByMagicNumber(file.magicNumber));
+        System.out.println("done!");
+
+        System.out.println("Number of files: " + filesMap.values().size());
+        System.out.println("Files size: " + fileVisitor.files.stream().map(file -> file.size).reduce((i, k) -> i + k).orElse(0L));
+        System.out.println("Earliest file created on " + fileVisitor.files.stream().map(file -> file.createdOn).sorted().limit(1).findAny().orElse(null));
+        System.out.println("Earliest file modified on " + fileVisitor.files.stream().map(file -> file.modifiedOn).sorted().limit(1).findAny().orElse(null));
+        List<FileEntity> images = filesMap.values().stream().filter(file -> file.extension != Extension.NOT_AN_IMAGE).collect(Collectors.toList());
+        System.out.println("Number of images: " + images.size());
+        System.out.println("Images size: " + images.stream().map(file -> file.size).reduce((i, k) -> i + k).orElse(0L));
+        System.out.println("Earliest image created on " + images.stream().map(file -> file.createdOn).sorted().limit(1).findAny().orElse(null));
+        System.out.println("Earliest image modified on " + images.stream().map(file -> file.modifiedOn).sorted().limit(1).findAny().orElse(null));
 
         JsonHelper jsonHelper = new JsonHelper();
 
