@@ -8,8 +8,8 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.skycelot.photoorganizer.filesystem.FileMetadata;
-import ru.skycelot.photoorganizer.service.CsvHelper;
-import ru.skycelot.photoorganizer.service.FileCsvConverter;
+import ru.skycelot.photoorganizer.conversion.csv.CsvHelper;
+import ru.skycelot.photoorganizer.conversion.csv.FileCsvConverter;
 
 import java.nio.file.Paths;
 import java.time.Instant;

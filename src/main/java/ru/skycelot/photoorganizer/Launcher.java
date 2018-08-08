@@ -3,10 +3,10 @@ package ru.skycelot.photoorganizer;
 import ru.skycelot.photoorganizer.domain.Duplicates;
 import ru.skycelot.photoorganizer.domain.FileEntity;
 import ru.skycelot.photoorganizer.filesystem.DirectoryScanner;
-import ru.skycelot.photoorganizer.service.DuplicatesJsonConverter;
+import ru.skycelot.photoorganizer.conversion.json.DuplicatesJsonConverter;
 import ru.skycelot.photoorganizer.service.FileContentHelper;
-import ru.skycelot.photoorganizer.service.FileEntityJsonConverter;
-import ru.skycelot.photoorganizer.service.JsonHelper;
+import ru.skycelot.photoorganizer.conversion.json.FileEntityJsonConverter;
+import ru.skycelot.photoorganizer.conversion.json.JsonHelper;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;

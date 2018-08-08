@@ -2,8 +2,8 @@ package ru.skycelot.photoorganizer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.skycelot.photoorganizer.json.*;
-import ru.skycelot.photoorganizer.service.JsonHelper;
+import ru.skycelot.photoorganizer.conversion.json.elements.*;
+import ru.skycelot.photoorganizer.conversion.json.JsonHelper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

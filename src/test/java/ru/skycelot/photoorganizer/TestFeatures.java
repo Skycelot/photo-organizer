@@ -2,8 +2,8 @@ package ru.skycelot.photoorganizer;
 
 import org.junit.jupiter.api.Test;
 import ru.skycelot.photoorganizer.filesystem.FileMetadata;
-import ru.skycelot.photoorganizer.service.CsvHelper;
-import ru.skycelot.photoorganizer.service.FileCsvConverter;
+import ru.skycelot.photoorganizer.conversion.csv.CsvHelper;
+import ru.skycelot.photoorganizer.conversion.csv.FileCsvConverter;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

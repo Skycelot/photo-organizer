@@ -1,9 +1,8 @@
 package ru.skycelot.photoorganizer;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.skycelot.photoorganizer.service.CsvHelper;
+import ru.skycelot.photoorganizer.conversion.csv.CsvHelper;
 
 import java.util.Arrays;
 import java.util.List;
