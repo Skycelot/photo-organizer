@@ -38,6 +38,7 @@ public class FileEntityJsonConverter {
         object.put("size", new JsonNumber(file.size, false));
         object.put("createdOn", new JsonNumber(file.createdOn.toEpochMilli(), false));
         object.put("modifiedOn", new JsonNumber(file.modifiedOn.toEpochMilli(), false));
+        object.put("exifDate", file.exifDate != null ? new JsonNumber(file.exifDate.toEpochMilli(), false) : JsonNull.getInstance());
         object.put("magicNumber", file.magicNumber != null ? new JsonString(DatatypeConverter.printHexBinary(file.magicNumber)) : JsonNull.getInstance());
         return object;
     }
@@ -90,6 +91,10 @@ public class FileEntityJsonConverter {
         JsonElement modifiedOn = file.get("modifiedOn");
         if (modifiedOn instanceof JsonNumber) {
             result.modifiedOn = Instant.ofEpochMilli(((JsonNumber) modifiedOn).getValue().longValue());
+        }
+        JsonElement exifDate = file.get("exifDate");
+        if (exifDate instanceof JsonNumber) {
+            result.exifDate = Instant.ofEpochMilli(((JsonNumber) exifDate).getValue().longValue());
         }
         JsonElement magicNumber = file.get("magicNumber");
         if (magicNumber instanceof JsonString) {

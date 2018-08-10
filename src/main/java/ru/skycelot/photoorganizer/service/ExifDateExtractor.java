@@ -5,7 +5,6 @@ import ru.skycelot.photoorganizer.jpeg.SegmentType;
 import ru.skycelot.photoorganizer.jpeg.TagType;
 import ru.skycelot.photoorganizer.jpeg.TiffTag;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -21,7 +20,6 @@ public class ExifDateExtractor {
 
     private final SegmentExtractor segmentExtractor;
     private final TiffBlockParser tiffBlockParser;
-    private final ByteBuffer buffer = ByteBuffer.allocate(1024 * 96);
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
 
     public ExifDateExtractor(SegmentExtractor segmentExtractor, TiffBlockParser tiffBlockParser) {
