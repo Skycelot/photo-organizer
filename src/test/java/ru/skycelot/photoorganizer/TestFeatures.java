@@ -4,7 +4,10 @@ import org.junit.jupiter.api.Test;
 import ru.skycelot.photoorganizer.conversion.json.FileEntityJsonConverter;
 import ru.skycelot.photoorganizer.conversion.json.JsonHelper;
 import ru.skycelot.photoorganizer.domain.FileEntity;
-import ru.skycelot.photoorganizer.jpeg.Segment;
+import ru.skycelot.photoorganizer.service.Arithmetics;
+import ru.skycelot.photoorganizer.service.ExifDateExtractor;
+import ru.skycelot.photoorganizer.service.SegmentExtractor;
+import ru.skycelot.photoorganizer.service.TiffBlockParser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,8 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.time.Instant;
 import java.util.List;
 
 public class TestFeatures {
@@ -43,36 +45,13 @@ public class TestFeatures {
     }
 
     @Test
-    public void exif() throws IOException {
-        Path jpeg = Paths.get("/media/sf_Mount/_DSC0309.jpg");
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
-        ByteChannel channel = Files.newByteChannel(jpeg);
-        while (channel.read(buffer) > 0) {
-            buffer.flip();
-            while (buffer.hasRemaining()) {
-                baos.write(buffer.get());
-            }
-            buffer.clear();
-        }
-        byte[] content = baos.toByteArray();
-        List<Segment> segments = new LinkedList<>();
-        int blockStart = 0;
-        while (blockStart < content.length) {
-            Segment segment = new Segment((short) (((content[blockStart] & 0xFF) << 8) | (content[blockStart + 1] & 0xFF)));
-            if (segment.hasLength()) {
-                int length = (((content[blockStart + 2] & 0xFF) << 8) | (content[blockStart + 3] & 0xFF)) - 2;
-                blockStart += 4;
-                if (length > 0) {
-                    segment.setContent(Arrays.copyOfRange(content, blockStart, blockStart + length));
-                    blockStart += length;
-                }
-            } else {
-                blockStart += 2;
-            }
-            segments.add(segment);
-        }
+    public void exif() throws IOException, URISyntaxException {
+        Path jpeg = Paths.get(ClassLoader.getSystemResource("photo.jpg").toURI());
 
-        int z = 0;
+        Arithmetics arithmetics = new Arithmetics();
+        ExifDateExtractor extractor = new ExifDateExtractor(new SegmentExtractor(arithmetics), new TiffBlockParser(arithmetics));
+        Instant date = extractor.extractDate(jpeg);
+
+        int i = 0;
     }
 }

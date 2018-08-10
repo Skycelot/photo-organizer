@@ -7,7 +7,7 @@ import ru.skycelot.photoorganizer.domain.Duplicates;
 import ru.skycelot.photoorganizer.domain.Extension;
 import ru.skycelot.photoorganizer.domain.FileEntity;
 import ru.skycelot.photoorganizer.filesystem.DirectoryScanner;
-import ru.skycelot.photoorganizer.service.FileContentHelper;
+import ru.skycelot.photoorganizer.service.*;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
@@ -67,6 +67,14 @@ public class Launcher {
 
         System.out.print("Detecting images...");
         filesMap.values().stream().forEach(file -> file.extension = Extension.findByMagicNumber(file.magicNumber));
+        System.out.println("done!");
+
+        System.out.print("Extracting EXIF dates...");
+        Arithmetics arithmetics = new Arithmetics();
+        SegmentExtractor segmentExtractor = new SegmentExtractor(arithmetics);
+        TiffBlockParser tiffBlockParser = new TiffBlockParser(arithmetics);
+        ExifDateExtractor exifDateExtractor = new ExifDateExtractor(segmentExtractor, tiffBlockParser);
+        filesMap.values().stream().filter(file -> file.extension == Extension.JPG).forEach(file -> exifDateExtractor.extractDate(rootDirectory.resolve(file.path)));
         System.out.println("done!");
 
         System.out.println("Number of files: " + filesMap.values().size());

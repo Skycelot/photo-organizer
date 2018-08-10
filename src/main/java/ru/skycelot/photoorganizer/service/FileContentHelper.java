@@ -11,11 +11,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class FileContentHelper {
 
-    private final int bufferLength;
     private final ByteBuffer buffer;
 
     public FileContentHelper(int bufferLength) {
-        this.bufferLength = bufferLength;
         this.buffer = ByteBuffer.allocate(bufferLength);
     }
 
@@ -37,7 +35,6 @@ public class FileContentHelper {
         try (ByteChannel file = Files.newByteChannel(path, StandardOpenOption.READ)) {
             MessageDigest hash = MessageDigest.getInstance("SHA-256");
             buffer.clear();
-            buffer.limit(bufferLength);
             int readBytes;
             while((readBytes = file.read(buffer)) > 0) {
                 buffer.flip();

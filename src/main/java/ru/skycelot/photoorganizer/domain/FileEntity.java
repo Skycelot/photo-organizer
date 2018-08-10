@@ -12,6 +12,7 @@ public class FileEntity {
     public long size;
     public Instant createdOn;
     public Instant modifiedOn;
+    public Instant exifDate;
     public byte[] hash;
     public byte[] magicNumber;
 
