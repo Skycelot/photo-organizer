@@ -30,6 +30,6 @@ public enum SegmentType {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Unknown jpeg mark " + mark);
+        return null;
     }
 }

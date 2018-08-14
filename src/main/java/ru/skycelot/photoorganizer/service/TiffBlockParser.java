@@ -16,6 +16,20 @@ public class TiffBlockParser {
         this.arithmetics = arithmetics;
     }
 
+    public boolean validTiffBlock(byte[] content) {
+        ByteOrder byteOrder;
+        int byteOrderSignature = arithmetics.convertBytesToShort(content[0], content[1]);
+        if (byteOrderSignature == 0x4949) {
+            byteOrder = ByteOrder.BIG_ENDIAN;
+        } else if (byteOrderSignature == 0x4D4D) {
+            byteOrder = ByteOrder.LITTLE_ENDIAN;
+        } else {
+            return false;
+        }
+        int tiffSignature = arithmetics.convertBytesToShort(content, 2, byteOrder);
+        return tiffSignature == 0x002A;
+    }
+
     public List<TiffTag> extractEntries(byte[] tiffBlock) {
         ByteOrder byteOrder;
         int byteOrderSignature = arithmetics.convertBytesToShort(tiffBlock[0], tiffBlock[1]);

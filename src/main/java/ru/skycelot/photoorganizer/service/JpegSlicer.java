@@ -1,9 +1,8 @@
 package ru.skycelot.photoorganizer.service;
 
-import ru.skycelot.photoorganizer.jpeg.SegmentSketch;
+import ru.skycelot.photoorganizer.jpeg.Segment;
 import ru.skycelot.photoorganizer.jpeg.SegmentType;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -21,12 +20,12 @@ public class JpegSlicer {
         this.arithmetics = arithmetics;
     }
 
-    public List<SegmentSketch> slice(Path file) {
-        List<SegmentSketch> result = new LinkedList<>();
+    public List<Segment> slice(Path file) {
+        List<Segment> result = new LinkedList<>();
         try (ByteChannel channel = Files.newByteChannel(file, StandardOpenOption.READ)) {
             State currentState = State.NEXT;
             byte firstByte = 0;
-            SegmentSketch currentSegment = null;
+            Segment currentSegment = null;
             int contentLength = 0;
             buffer.clear();
             int offset = 0;
@@ -39,16 +38,18 @@ public class JpegSlicer {
                             if (currentByte == ((byte) 0xFF)) {
                                 firstByte = currentByte;
                                 currentState = State.MARK;
-                            } else {
-                                throw new IllegalArgumentException(currentState + ": " + DatatypeConverter.printHexBinary(new byte[]{currentByte}));
                             }
                             break;
                         case MARK:
                             int mark = arithmetics.convertBytesToShort(firstByte, currentByte);
                             SegmentType type = SegmentType.findByMark(mark);
-                            currentSegment = new SegmentSketch(offset - 1, type);
-                            result.add(currentSegment);
-                            currentState = type.hasLength ? State.LENGTH_1 : State.NEXT;
+                            if (type != null) {
+                                currentSegment = new Segment(offset - 1, type);
+                                result.add(currentSegment);
+                                currentState = type.hasLength ? State.LENGTH_1 : State.NEXT;
+                            } else {
+                                currentState = State.NEXT;
+                            }
                             break;
                         case LENGTH_1:
                             firstByte = currentByte;
@@ -57,35 +58,24 @@ public class JpegSlicer {
                         case LENGTH_2:
                             contentLength = arithmetics.convertBytesToShort(firstByte, currentByte) - 2;
                             currentSegment.setSize(contentLength);
-                            currentState = contentLength == 0 ? State.NEXT: State.CONTENT;
+                            if (contentLength > 0) {
+                                currentSegment.setContent(new byte[contentLength]);
+                                currentState = State.CONTENT;
+                            } else {
+                                currentState = State.NEXT;
+                            }
                             break;
                         case CONTENT:
+                            currentSegment.getContent()[currentSegment.getContent().length - contentLength] = currentByte;
                             contentLength--;
                             if (contentLength == 0) {
-                                currentState = currentSegment.getType() == SegmentType.sos ? State.IMAGE : State.NEXT;
-                            }
-                            break;
-                        case IMAGE:
-                            if (currentByte == ((byte) 0xFF)) {
-                                firstByte = currentByte;
-                                currentState = State.ESCAPE;
-                            }
-                            break;
-                        case ESCAPE:
-                            if (currentByte == ((byte) 0xFF)) {
-                                currentState = State.IMAGE;
-                            } else {
-                                mark = arithmetics.convertBytesToShort(firstByte, currentByte);
-                                type = SegmentType.findByMark(mark);
-                                currentSegment = new SegmentSketch(offset - 1, type);
-                                result.add(currentSegment);
-                                currentState = type.hasLength ? State.LENGTH_1 : State.IMAGE;
+                                currentState = State.NEXT;
                             }
                             break;
                     }
+                    offset++;
                 }
                 buffer.clear();
-                offset++;
             }
             return result;
         } catch (IOException e) {
@@ -94,6 +84,6 @@ public class JpegSlicer {
     }
 
     private enum State {
-        NEXT, MARK, LENGTH_1, LENGTH_2, CONTENT, IMAGE, ESCAPE
+        NEXT, MARK, LENGTH_1, LENGTH_2, CONTENT
     }
 }

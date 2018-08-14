@@ -38,9 +38,12 @@ public class FileEntityJsonConverter {
         object.put("size", new JsonNumber(file.size, false));
         object.put("createdOn", new JsonNumber(file.createdOn.toEpochMilli(), false));
         object.put("modifiedOn", new JsonNumber(file.modifiedOn.toEpochMilli(), false));
+        object.put("tiffBlockOffset", file.tiffBlockOffset != null ? new JsonNumber(file.tiffBlockOffset, false) : JsonNull.getInstance());
+        object.put("tiffBlockLength", file.tiffBlockLength != null ? new JsonNumber(file.tiffBlockLength, false) : JsonNull.getInstance());
+        object.put("exifCamera", file.exifCamera != null ? new JsonString(file.uuid.toString()) : JsonNull.getInstance());
         object.put("exifDate", file.exifDate != null ? new JsonNumber(file.exifDate.toEpochMilli(), false) : JsonNull.getInstance());
         object.put("magicNumber", file.magicNumber != null ? new JsonString(DatatypeConverter.printHexBinary(file.magicNumber)) : JsonNull.getInstance());
-        object.put("exifOffset", file.exifOffset != null ? new JsonNumber(file.exifOffset, false) : JsonNull.getInstance());
+        object.put("hash", file.hash != null ? new JsonString(DatatypeConverter.printHexBinary(file.hash)) : JsonNull.getInstance());
         return object;
     }
 
@@ -93,6 +96,18 @@ public class FileEntityJsonConverter {
         if (modifiedOn instanceof JsonNumber) {
             result.modifiedOn = Instant.ofEpochMilli(((JsonNumber) modifiedOn).getValue().longValue());
         }
+        JsonElement tiffBlockOffset = file.get("tiffBlockOffset");
+        if (tiffBlockOffset instanceof JsonNumber) {
+            result.tiffBlockOffset = ((JsonNumber) tiffBlockOffset).getValue().intValue();
+        }
+        JsonElement tiffBlockLength = file.get("tiffBlockLength");
+        if (tiffBlockLength instanceof JsonNumber) {
+            result.tiffBlockLength = ((JsonNumber) tiffBlockLength).getValue().intValue();
+        }
+        JsonElement exifCamera = file.get("exifCamera");
+        if (exifCamera instanceof JsonString) {
+            result.exifCamera = ((JsonString) exifCamera).getValue();
+        }
         JsonElement exifDate = file.get("exifDate");
         if (exifDate instanceof JsonNumber) {
             result.exifDate = Instant.ofEpochMilli(((JsonNumber) exifDate).getValue().longValue());
@@ -101,7 +116,10 @@ public class FileEntityJsonConverter {
         if (magicNumber instanceof JsonString) {
             result.magicNumber = DatatypeConverter.parseHexBinary(((JsonString) magicNumber).getValue());
         }
-
+        JsonElement hash = file.get("hash");
+        if (hash instanceof JsonString) {
+            result.hash = DatatypeConverter.parseHexBinary(((JsonString) hash).getValue());
+        }
         return result;
     }
 }

@@ -2,7 +2,6 @@ package ru.skycelot.photoorganizer.domain;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class FileEntity {
@@ -12,10 +11,12 @@ public class FileEntity {
     public long size;
     public Instant createdOn;
     public Instant modifiedOn;
+    public Integer tiffBlockOffset;
+    public Integer tiffBlockLength;
+    public String exifCamera;
     public Instant exifDate;
-    public byte[] hash;
     public byte[] magicNumber;
-    public Integer exifOffset;
+    public byte[] hash;
 
     public FileEntity() {
     }
@@ -32,12 +33,7 @@ public class FileEntity {
     public String toString() {
         return "FileEntity{" +
                 "path='" + path + '\'' +
-                ", extension='" + extension + '\'' +
                 ", size=" + size +
-                ", createdOn=" + createdOn +
-                ", modifiedOn=" + modifiedOn +
-                ", hash=" + Arrays.toString(hash) +
-                ", magicNumber=" + Arrays.toString(magicNumber) +
                 '}';
     }
 }
