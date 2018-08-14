@@ -52,7 +52,7 @@ public class DuplicatesFinder {
             Files.write(filesDb, json, StandardOpenOption.TRUNCATE_EXISTING);
 
             json = duplicatesJsonConverter.marshall(duplicates).getBytes(StandardCharsets.UTF_8);
-            Files.write(duplicatesDb, json, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(duplicatesDb, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             System.out.println("done!");
         } catch (IOException e) {
             throw new RuntimeException(e);
