@@ -40,6 +40,7 @@ public class FileEntityJsonConverter {
         object.put("modifiedOn", new JsonNumber(file.modifiedOn.toEpochMilli(), false));
         object.put("exifDate", file.exifDate != null ? new JsonNumber(file.exifDate.toEpochMilli(), false) : JsonNull.getInstance());
         object.put("magicNumber", file.magicNumber != null ? new JsonString(DatatypeConverter.printHexBinary(file.magicNumber)) : JsonNull.getInstance());
+        object.put("exifOffset", file.exifOffset != null ? new JsonNumber(file.exifOffset, false) : JsonNull.getInstance());
         return object;
     }
 

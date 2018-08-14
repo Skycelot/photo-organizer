@@ -20,7 +20,16 @@ public enum SegmentType {
 
     SegmentType(int id, boolean hasLength) {
         this.id = id;
-        this.idBytes = new byte[] {(byte) ((id & 0xFF00) >>> 8), (byte) (id & 0xFF)};
+        this.idBytes = new byte[]{(byte) ((id & 0xFF00) >>> 8), (byte) (id & 0xFF)};
         this.hasLength = hasLength;
+    }
+
+    public static SegmentType findByMark(int mark) {
+        for (SegmentType type : values()) {
+            if (type.id == mark) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown jpeg mark " + mark);
     }
 }

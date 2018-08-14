@@ -15,6 +15,7 @@ public class FileEntity {
     public Instant exifDate;
     public byte[] hash;
     public byte[] magicNumber;
+    public Integer exifOffset;
 
     public FileEntity() {
     }
