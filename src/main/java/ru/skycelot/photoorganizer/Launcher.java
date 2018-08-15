@@ -63,6 +63,8 @@ public class Launcher {
                 exifBlockSaver.extractExifInformation(fileEntityDb, duplicatesDb, rootDirectory);
                 break;
             case EXTRACT_EXIF:
+                ExifInfoExtractor exifInfoExtractor = new ExifInfoExtractor(fileEntityJsonConverter, duplicatesJsonConverter, tiffBlockParser);
+                exifInfoExtractor.extractExifInfo(fileEntityDb, duplicatesDb, rootDirectory);
                 break;
         }
     }

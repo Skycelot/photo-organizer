@@ -268,8 +268,11 @@ public class JsonHelper {
                             if (objectStack.getLast() instanceof JsonArray) {
                                 objectStack.removeLast();
                                 stateStack.removeLast();
+                                stateStack.removeLast();
                                 if (objectStack.peekLast() == null) {
                                     stateStack.add(State.FINISH);
+                                } else {
+                                    stateStack.add(State.VALUE_END);
                                 }
                             } else {
                                 throw new IllegalArgumentException(stateStack.getLast() + " -> " + character);

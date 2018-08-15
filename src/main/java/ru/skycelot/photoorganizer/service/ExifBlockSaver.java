@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,7 +22,6 @@ public class ExifBlockSaver {
     private final JpegSlicer jpegSlicer;
     private final TiffBlockParser tiffBlockParser;
     private final byte[] exifMarker = new byte[]{'E', 'x', 'i', 'f', 0, 0};
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
 
     public ExifBlockSaver(FileEntityJsonConverter fileEntityJsonConverter, DuplicatesJsonConverter duplicatesJsonConverter, JpegSlicer jpegSlicer, TiffBlockParser tiffBlockParser) {
         this.fileEntityJsonConverter = fileEntityJsonConverter;
@@ -49,15 +47,22 @@ public class ExifBlockSaver {
             System.out.print("Searching for exif information...");
             Set<UUID> processedUuids = new HashSet<>();
             files.values().stream().filter(file -> file.extension == Extension.JPG).forEach(file -> {
-                UUID processedUuid = duplicates.containsKey(file.uuid) ? setsIntersection(duplicates.get(file.uuid),processedUuids) : null;
-                if (processedUuid ==null) {
+                UUID processedUuid = null;
+                if (duplicates.containsKey(file.uuid)) {
+                    Set<UUID> intersection = new HashSet<>(duplicates.get(file.uuid));
+                    intersection.retainAll(processedUuids);
+                    if (!intersection.isEmpty()) {
+                        intersection.iterator().next();
+                    }
+                }
+                if (processedUuid == null) {
                     List<Segment> segments = jpegSlicer.slice(rootDirectory.resolve(file.path));
                     for (Segment segment : segments) {
                         if (segment.getType() == SegmentType.app1 && segment.getContent().length > 6 &&
                                 Arrays.equals(Arrays.copyOfRange(segment.getContent(), 0, 6), exifMarker)) {
                             byte[] tiffBlock = Arrays.copyOfRange(segment.getContent(), 6, segment.getContent().length);
                             if (tiffBlockParser.validTiffBlock(tiffBlock)) {
-                                file.tiffBlockOffset = segment.getOffset() + 6;
+                                file.tiffBlockOffset = segment.getOffset() + 10;
                                 file.tiffBlockLength = segment.getSize() - 6;
                                 processedUuids.add(file.uuid);
                                 break;
@@ -79,11 +84,5 @@ public class ExifBlockSaver {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private UUID setsIntersection(Set<UUID> setA, Set<UUID> setB) {
-        Set<UUID> intersection = new HashSet<>(setA);
-        intersection.retainAll(setB);
-        return intersection.isEmpty() ? null : intersection.iterator().next();
     }
 }
