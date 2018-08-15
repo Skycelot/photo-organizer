@@ -59,8 +59,8 @@ public class Launcher {
                 duplicatesFinder.findDuplicates(fileEntityDb, duplicatesDb, rootDirectory);
                 break;
             case FIND_EXIF:
-                ExifBlockSaver exifBlockSaver = new ExifBlockSaver(fileEntityJsonConverter, jpegSlicer, tiffBlockParser);
-                exifBlockSaver.extractExifInformation(fileEntityDb, rootDirectory);
+                ExifBlockSaver exifBlockSaver = new ExifBlockSaver(fileEntityJsonConverter, duplicatesJsonConverter, jpegSlicer, tiffBlockParser);
+                exifBlockSaver.extractExifInformation(fileEntityDb, duplicatesDb, rootDirectory);
                 break;
             case EXTRACT_EXIF:
                 break;

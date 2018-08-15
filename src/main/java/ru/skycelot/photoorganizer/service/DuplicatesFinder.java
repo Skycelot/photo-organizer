@@ -47,11 +47,8 @@ public class DuplicatesFinder {
                     map(fileList -> new Duplicates(fileList.stream().map(file -> file.uuid).collect(Collectors.toList()))).collect(Collectors.toList());
             System.out.println("done!");
 
-            System.out.print("Saving files to database...");
-            byte[] json = fileEntityJsonConverter.marshall(files).getBytes(StandardCharsets.UTF_8);
-            Files.write(filesDb, json, StandardOpenOption.TRUNCATE_EXISTING);
-
-            json = duplicatesJsonConverter.marshall(duplicates).getBytes(StandardCharsets.UTF_8);
+            System.out.print("Saving duplicates to database...");
+            byte[] json = duplicatesJsonConverter.marshall(duplicates).getBytes(StandardCharsets.UTF_8);
             Files.write(duplicatesDb, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             System.out.println("done!");
         } catch (IOException e) {
